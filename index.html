@@ -1556,6 +1556,30 @@ main,
 }
 </style>
 
+
+<style id="guardianes-pwa-install">
+#btn-instalar-app{
+    display:none;
+    align-items:center;
+    gap:7px;
+    border:1px solid rgba(139,92,246,.55);
+    background:linear-gradient(135deg,#7c3aed,#2563eb);
+    color:#fff;
+    font-weight:900;
+    font-size:12px;
+    padding:9px 13px;
+    border-radius:12px;
+    box-shadow:0 8px 25px rgba(76,29,149,.25);
+    cursor:pointer;
+    transition:transform .2s ease, filter .2s ease;
+}
+#btn-instalar-app:hover{transform:translateY(-1px);filter:brightness(1.08)}
+#btn-instalar-app:active{transform:scale(.97)}
+@media(max-width:600px){
+    #btn-instalar-app{font-size:11px;padding:8px 10px}
+    #btn-instalar-app span{display:none}
+}
+</style>
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between">
     <!-- FONDO AURORA ANIMADO -->
@@ -1607,6 +1631,10 @@ main,
         </div>
     </div>
     <div class="flex items-center gap-3" id="nav-actions">
+<button id="btn-instalar-app" type="button" aria-label="Instalar Guardianes de la Palabra" title="Instalar aplicación">
+  <i class="fa-solid fa-download"></i><span>Instalar app</span>
+</button>
+
         </div>
 </header>
 
@@ -4165,6 +4193,54 @@ window.addEventListener("load", () => {
         </div>
     </div>
 </div>
+
+
+<script id="guardianes-pwa-install-js">
+(() => {
+  let deferredPrompt = null;
+  const btn = document.getElementById('btn-instalar-app');
+
+  function ocultarBoton(){
+    if(btn) btn.style.display = 'none';
+  }
+
+  function mostrarBoton(){
+    if(btn) btn.style.display = 'inline-flex';
+  }
+
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    mostrarBoton();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    deferredPrompt = null;
+    ocultarBoton();
+  });
+
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    ocultarBoton();
+  }
+
+  if(btn){
+    btn.addEventListener('click', async () => {
+      if(!deferredPrompt){
+        alert('La instalación todavía no está disponible. Abre Guardianes desde su dirección de GitHub Pages (https://...) y vuelve a cargar la página.');
+        return;
+      }
+
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      ocultarBoton();
+    });
+  }
+})();
+</script>
+
+</body>
+</html>
 
 </body>
 </html>
