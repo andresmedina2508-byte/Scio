@@ -907,7 +907,49 @@ header .text-xs{
 <meta name="theme-color" content="#030712">
 
 <style>
-#minijuegos-extra{width:100%;box-sizing:border-box}
+/* BOTÓN CERRAR DE LA SALA DE MINIJUEGOS */
+#minijuegos-extra{
+    width:100%;
+    box-sizing:border-box;
+    position:relative;
+}
+#cerrar-sala-minijuegos{
+    position:absolute;
+    top:14px;
+    right:14px;
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(15,23,42,.92);
+    border:1px solid #334155;
+    color:#cbd5e1;
+    font-size:18px;
+    font-weight:900;
+    cursor:pointer;
+    z-index:5;
+    transition:.2s ease;
+}
+#cerrar-sala-minijuegos:hover{
+    background:#7f1d1d;
+    border-color:#ef4444;
+    color:#fff;
+    transform:scale(1.06);
+}
+@media(max-width:700px){
+    #cerrar-sala-minijuegos{
+        top:10px;
+        right:10px;
+        width:36px;
+        height:36px;
+    }
+    #minijuegos-extra{padding:14px!important}
+    #minijuegos-extra button{min-height:42px}
+    #minijuego-panel input{font-size:16px}
+}
+</style>
 @media(max-width:700px){
   #minijuegos-extra{padding:14px!important}
   #minijuegos-extra button{min-height:42px}
@@ -1671,6 +1713,10 @@ main,
     
 <!-- SALA ÚNICA DE MINIJUEGOS -->
 <section id="minijuegos-extra" class="hidden bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl mt-5">
+  <button id="cerrar-sala-minijuegos" type="button" onclick="cerrarSalaMinijuegos()" aria-label="Cerrar sala de minijuegos" title="Cerrar">
+    <i class="fa-solid fa-xmark"></i>
+  </button>
+
   <div class="text-center mb-5">
     <div class="text-5xl">🎮</div>
     <h2 class="text-3xl font-black text-white mt-2">SALA DE MINIJUEGOS</h2>
@@ -2044,10 +2090,52 @@ main,
   window.abrirSalaMinijuegos=function(){
     const sec=document.getElementById("minijuegos-extra");
     if(!sec)return;
+
+    // Ocultar los apartados normales para que la sala sea independiente.
+    const nombres=['inicio','misiones','perfil','progreso','racha','recompensas','minijuegos'];
+    nombres.forEach(nombre=>{
+      const el=document.getElementById('apartado-'+nombre);
+      if(el) el.classList.add('hidden');
+
+      const b=document.getElementById('btn-apartado-'+nombre);
+      if(b) b.className='px-4 py-2 rounded-xl bg-slate-950 text-slate-300 text-xs font-bold border border-slate-800';
+    });
+
+    // Marcar Minijuegos como activo.
+    const botonMini=document.getElementById('btn-minijuegos');
+    if(botonMini){
+      botonMini.className='px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white text-xs font-black shadow-lg shadow-violet-500/20';
+    }
+
     sec.classList.remove("hidden");
     sec.style.display="block";
+    window.scrollTo({top:0,behavior:"smooth"});
     setTimeout(()=>sec.scrollIntoView({behavior:"smooth",block:"start"}),50);
-};
+  };
+
+  window.cerrarSalaMinijuegos=function(){
+    const sec=document.getElementById("minijuegos-extra");
+    if(!sec)return;
+
+    sec.classList.add("hidden");
+    sec.style.display="none";
+
+    // Al cerrar, volver a Inicio para que nunca quede la pantalla vacía.
+    const inicio=document.getElementById("apartado-inicio");
+    if(inicio) inicio.classList.remove("hidden");
+
+    const botonMini=document.getElementById('btn-minijuegos');
+    if(botonMini){
+      botonMini.className='px-4 py-2 rounded-xl bg-slate-950 text-slate-300 text-xs font-bold border border-slate-800';
+    }
+
+    const botonInicio=document.getElementById('btn-apartado-inicio');
+    if(botonInicio){
+      botonInicio.className='px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white text-xs font-black shadow-lg shadow-violet-500/20';
+    }
+
+    window.scrollTo({top:0,behavior:"smooth"});
+  };
 
   actualizarMarcadores();
 })();
@@ -2489,11 +2577,35 @@ function actualizarRachaDiaria(estudiante) {
     // INGRESO DEL ESTUDIANTE
     function irApartado(apartado) {
         const nombres=['inicio','misiones','perfil','progreso','racha','recompensas','minijuegos'];
-        nombres.forEach(nombre=>{ const el=document.getElementById('apartado-'+nombre); if(el) el.classList.add('hidden'); const b=document.getElementById('btn-apartado-'+nombre); if(b) b.className='px-4 py-2 rounded-xl bg-slate-950 text-slate-300 text-xs font-bold border border-slate-800'; });
+
+        // Ocultar TODOS los apartados normales.
+        nombres.forEach(nombre=>{
+            const el=document.getElementById('apartado-'+nombre);
+            if(el) el.classList.add('hidden');
+
+            const b=document.getElementById('btn-apartado-'+nombre);
+            if(b) b.className='px-4 py-2 rounded-xl bg-slate-950 text-slate-300 text-xs font-bold border border-slate-800';
+        });
+
+        // IMPORTANTE: la sala de minijuegos está fuera de #apartado-minijuegos,
+        // por eso hay que ocultarla manualmente cuando se cambia de apartado.
+        const sala=document.getElementById('minijuegos-extra');
+        if(sala){
+            sala.classList.add('hidden');
+            sala.style.display='none';
+        }
+
+        const botonMini=document.getElementById('btn-minijuegos');
+        if(botonMini){
+            botonMini.className='px-4 py-2 rounded-xl bg-slate-950 text-slate-300 text-xs font-bold border border-slate-800';
+        }
+
         const elegido=document.getElementById('apartado-'+apartado);
         if(elegido) elegido.classList.remove('hidden');
+
         const boton=document.getElementById('btn-apartado-'+apartado);
         if(boton) boton.className='px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-500 text-white text-xs font-black shadow-lg shadow-violet-500/20';
+
         window.scrollTo({top:0,behavior:'smooth'});
         updateStudentUI();
     }
