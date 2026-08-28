@@ -1426,6 +1426,13 @@ main,
 </style>
 
 
+<style id="guardianes-minijuegos-extra-style">
+  #minijuegos-extra button{transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease;}
+  #minijuegos-extra button:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.18);}
+  #minijuego-panel .apartado-animado{animation:miniEntrada .35s cubic-bezier(.22,1,.36,1) both;}
+  @keyframes miniEntrada{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+</style>
+
 <style id="guardianes-nivel-animaciones">
 /* ===== NIVEL PRINCIPAL + ANIMACIONES GENERALES ===== */
 #nivel-principal-card{
@@ -1871,6 +1878,10 @@ main,
     <button onclick="seleccionarJuego('error')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">🔎 Error</button>
     <button onclick="seleccionarJuego('ordenar')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">📝 Ordena</button>
     <button onclick="seleccionarJuego('quiz')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">⚡ Quiz</button>
+    <button onclick="seleccionarJuego('verdadero')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">⚔️ Verdadero o Falso</button>
+    <button onclick="seleccionarJuego('intruso')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">🕵️ Palabra Intrusa</button>
+    <button onclick="seleccionarJuego('completa')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">🧩 Completa la Frase</button>
+    <button onclick="seleccionarJuego('relampago')" class="p-3 rounded-xl bg-slate-950 border border-slate-700 text-white font-bold">⚡ Reto Relámpago</button>
   </div>
 
   <div class="flex flex-wrap justify-center gap-3 mb-4 text-sm">
@@ -1949,16 +1960,267 @@ main,
     ]
   };
 
+  const bancoNuevosJuegos = {
+    // Banco amplio: las preguntas se eligen al azar para que las rondas no sean siempre iguales.
+    verdadero: [
+      ["Una metáfora compara dos ideas de manera literal.", false],
+      ["El sustantivo puede nombrar personas, animales, lugares o cosas.", true],
+      ["Los conectores ayudan a relacionar ideas.", true],
+      ["El narrador siempre es el autor real de una historia.", false],
+      ["La ortografía estudia la forma correcta de escribir las palabras.", true],
+      ["Un verbo puede expresar una acción o un estado.", true],
+      ["Una oración no necesita tener sentido para estar bien escrita.", false],
+      ["Una inferencia se obtiene usando pistas de un texto.", true],
+      ["Un adjetivo puede describir a un sustantivo.", true],
+      ["El punto y la coma son exactamente el mismo signo.", false],
+      ["Los sinónimos tienen significados iguales o parecidos.", true],
+      ["Los antónimos expresan significados contrarios.", true],
+      ["Un párrafo puede desarrollar una idea principal.", true],
+      ["El título de un texto nunca ayuda a anticipar su contenido.", false],
+      ["Leer solo consiste en pronunciar palabras rápidamente.", false],
+      ["La coherencia ayuda a que las ideas de un texto tengan sentido.", true],
+      ["La cohesión ayuda a conectar las partes de un texto.", true],
+      ["El emisor es quien recibe el mensaje.", false],
+      ["El receptor es quien recibe el mensaje.", true],
+      ["El canal es el medio por el que se transmite un mensaje.", true],
+      ["Una noticia pertenece normalmente al texto narrativo literario.", false],
+      ["Una fábula suele presentar una enseñanza o moraleja.", true],
+      ["Una obra de teatro puede dividirse en actos y escenas.", true],
+      ["La rima solo puede aparecer en textos científicos.", false],
+      ["El verbo 'corrieron' expresa una acción.", true],
+      ["La palabra 'azul' puede funcionar como adjetivo.", true],
+      ["'Grande' es un verbo.", false],
+      ["'Caminar' puede funcionar como verbo.", true],
+      ["Los signos de interrogación se usan para preguntas.", true],
+      ["Los signos de exclamación expresan, entre otras cosas, emoción o énfasis.", true],
+      ["Una coma siempre debe ponerse al final de cada oración.", false],
+      ["Un texto argumentativo busca defender o sustentar una idea.", true],
+      ["Un texto instructivo puede presentar pasos para realizar una actividad.", true],
+      ["Un resumen debe conservar todas las palabras del texto original.", false],
+      ["Comprender un texto implica construir significado.", true],
+      ["El contexto puede ayudar a entender una palabra.", true],
+      ["Un diccionario puede ayudar a consultar significados.", true],
+      ["Una palabra polisémica puede tener varios significados relacionados.", true],
+      ["La comunicación solo ocurre cuando las personas hablan.", false],
+      ["La comunicación puede incluir gestos e imágenes.", true],
+      ["El lenguaje escrito utiliza palabras y signos para comunicar.", true],
+      ["Un personaje participa en los acontecimientos de una historia.", true],
+      ["El escenario puede indicar dónde ocurre una historia o escena.", true],
+      ["Una descripción presenta características de personas, lugares u objetos.", true],
+      ["El narrador y el personaje siempre son la misma persona.", false],
+      ["Una idea principal resume lo más importante de un texto.", true],
+      ["Un conector como 'sin embargo' puede expresar contraste.", true],
+      ["'Además' puede añadir información.", true],
+      ["'Por lo tanto' puede introducir una consecuencia.", true]
+    ],
+    intruso: [
+      ["Libro","Cuaderno","Lápiz","Correr",3],
+      ["Metáfora","Símil","Personificación","Ventana",3],
+      ["Leer","Escribir","Cantar","Azul",3],
+      ["Narrador","Personaje","Escena","Rápidamente",3],
+      ["Punto","Coma","Dos puntos","Hermoso",3],
+      ["Sustantivo","Adjetivo","Verbo","Párrafo",3],
+      ["Cuento","Novela","Fábula","Martillo",3],
+      ["Emisor","Receptor","Canal","Montaña",3],
+      ["Sinónimo","Antónimo","Significado","Bicicleta",3],
+      ["Oración","Párrafo","Texto","Zapato",3],
+      ["Leer","Comprender","Interpretar","Verde",3],
+      ["Acto","Escena","Personaje","Cuaderno",3],
+      ["Coma","Punto","Guion","Correr",3],
+      ["Rima","Verso","Estrofa","Teléfono",3],
+      ["Argumento","Razón","Evidencia","Naranja",3],
+      ["Coherencia","Cohesión","Conector","Ventana",3],
+      ["Sustantivo","Nombre","Persona","Salta",3],
+      ["Verbo","Acción","Proceso","Lápiz",3],
+      ["Adjetivo","Calificativo","Característica","Biblioteca",3],
+      ["Poesía","Poema","Verso","Computador",3],
+      ["Noticia","Titular","Cuerpo","Zapato",3],
+      ["Diccionario","Definición","Palabra","Correr",3],
+      ["Fábula","Moraleja","Enseñanza","Martillo",3],
+      ["Teatro","Acto","Escena","Azul",3],
+      ["Narración","Inicio","Nudo","Cuchara",3],
+      ["Pregunta","Respuesta","Interrogación","Árbol",3],
+      ["Mayúscula","Minúscula","Párrafo","Caminar",3],
+      ["Texto","Párrafo","Oración","Pelota",3],
+      ["Comunicación","Mensaje","Emisor","Dormido",3],
+      ["Ortografía","Acento","Tilde","Cantar",3],
+      ["Inferencia","Pista","Conclusión","Ventilador",3],
+      ["Resumen","Idea principal","Síntesis","Cuchillo",3],
+      ["Descripción","Característica","Detalle","Correr",3],
+      ["Argumentar","Defender","Justificar","Morado",3],
+      ["Conector","Además","Sin embargo","Zapato",3],
+      ["Sinónimo","Parecido","Equivalente","Nadar",3],
+      ["Antónimo","Contrario","Opuesto","Libro",3],
+      ["Narrador","Relato","Historia","Rápido",3],
+      ["Verso","Rima","Estrofa","Camiseta",3],
+      ["Lectura","Comprensión","Interpretación","Dormir",3],
+      ["Escritura","Borrador","Revisión","Montaña",3],
+      ["Sílaba","Palabra","Acento","Correr",3],
+      ["Punto","Final","Oración","Hermoso",3],
+      ["Diálogo","Conversación","Personajes","Azul",3],
+      ["Título","Tema","Idea principal","Cuchara",3]
+    ],
+    completa: [
+      ["El ______ cuenta los hechos de una historia.",["punto","narrador","adjetivo"],1],
+      ["Los ______ sirven para unir y relacionar ideas.",["personajes","conectores","verbos"],1],
+      ["La ______ estudia la escritura correcta de las palabras.",["narración","metáfora","ortografía"],2],
+      ["Una palabra que describe a un sustantivo es un ______.",["verbo","adjetivo","conector"],1],
+      ["La ______ permite comprender el significado de un texto.",["lectura","coma","rima"],0],
+      ["Una ______ es una conclusión obtenida a partir de pistas.",["oración","sílaba","inferencia"],2],
+      ["El ______ recibe el mensaje durante la comunicación.",["receptor","emisor","canal"],0],
+      ["La persona que envía un mensaje es el ______.",["receptor","canal","emisor"],2],
+      ["El ______ es el medio por el que viaja un mensaje.",["personaje","canal","título"],1],
+      ["Las palabras con significado parecido son ______.",["antónimos","sinónimos","verbos"],1],
+      ["Las palabras con significado contrario son ______.",["adjetivos","conectores","antónimos"],2],
+      ["El ______ organiza las ideas de un texto en una unidad.",["párrafo","verbo","canal"],0],
+      ["La ______ ayuda a que un texto tenga sentido lógico.",["rima","coherencia","tildación"],1],
+      ["La ______ une correctamente las partes de un texto.",["cohesión","moraleja","escena"],0],
+      ["Una historia suele tener inicio, ______ y desenlace.",["nudo","diccionario","título"],0],
+      ["Una obra teatral puede dividirse en actos y ______.",["sílabas","escenas","párrafos"],1],
+      ["Una ______ suele dejar una enseñanza.",["fábula","noticia","receta"],0],
+      ["El ______ presenta quiénes participan en una historia.",["personaje","conector","canal"],0],
+      ["La ______ explica cómo es una persona, lugar u objeto.",["descripción","argumentación","rima"],0],
+      ["Un texto que busca convencer puede ser ______.",["argumentativo","narrativo","alfabético"],0],
+      ["Un texto con pasos para hacer algo es ______.",["instructivo","lírico","descriptivo"],0],
+      ["Un ______ presenta información sobre un hecho de interés.",["poema","noticia","cuento"],1],
+      ["El ______ de una noticia suele presentar el tema principal.",["titular","nudo","personaje"],0],
+      ["El signo que suele cerrar una oración enunciativa es el ______.",["punto","paréntesis","guion"],0],
+      ["Los signos ______ se usan para formular preguntas.",["de exclamación","de interrogación","de suma"],1],
+      ["Los signos ______ pueden expresar emoción o énfasis.",["de exclamación","de interrogación","de división"],0],
+      ["Una ______ puede expresar una idea con sentido completo.",["oración","sílaba","letra"],0],
+      ["El ______ es la unidad mínima de significado que usamos al hablar o escribir.",["párrafo","palabra","capítulo"],1],
+      ["El conjunto de palabras que una persona conoce forma parte de su ______.",["vocabulario","escenario","argumento"],0],
+      ["El ______ permite consultar significados y usos de palabras.",["diccionario","teatro","párrafo"],0],
+      ["Una ______ puede tener más de un significado según el contexto.",["palabra polisémica","sílaba","rima"],0],
+      ["La ______ se produce cuando dos palabras tienen sonidos semejantes al final.",["rima","prosa","coherencia"],0],
+      ["Un poema puede organizarse en versos y ______.",["escenas","estrofas","capítulos"],1],
+      ["La ______ es el arte que utiliza el lenguaje para crear obras.",["literatura","gramática","ortografía"],0],
+      ["La ______ reúne las reglas que organizan una lengua.",["gramática","moraleja","noticia"],0],
+      ["El ______ expresa acción, estado o proceso.",["verbo","sustantivo","adjetivo"],0],
+      ["El ______ nombra personas, animales, lugares, objetos o ideas.",["adjetivo","sustantivo","verbo"],1],
+      ["El ______ expresa una característica del sustantivo.",["adjetivo","conector","punto"],0],
+      ["'Sin embargo' es un conector que puede expresar ______.",["causa","contraste","tiempo"],1],
+      ["'Además' sirve principalmente para ______ información.",["añadir","negar","contrastar"],0],
+      ["'Por lo tanto' puede introducir una ______.",["consecuencia","pregunta","descripción"],0],
+      ["Un ______ es una versión breve con las ideas más importantes.",["resumen","diálogo","titular"],0],
+      ["La idea más importante de un texto se llama idea ______.",["secundaria","principal","oculta"],1],
+      ["El ______ puede ayudar a anticipar de qué tratará un texto.",["título","verbo","guion"],0],
+      ["Comprender un texto significa construir su ______.",["significado","portada","rima"],0],
+      ["El ______ puede aportar información que ayuda a interpretar una palabra.",["contexto","personaje","verso"],0],
+      ["Una razón que apoya una opinión puede funcionar como ______.",["argumento","escena","sílaba"],0],
+      ["Una ______ es una conversación entre dos o más personas o personajes.",["descripción","diálogo","moraleja"],1],
+      ["El ______ indica el lugar y las condiciones donde ocurre una escena.",["escenario","conector","sinónimo"],0],
+      ["Una ______ cuenta acontecimientos reales o imaginarios.",["narración","coma","definición"],0],
+      ["La ______ revisa que las palabras estén escritas correctamente.",["ortografía","rima","actuación"],0]
+    ],
+    relampago: [
+      ["¿Cuál es un verbo?",["Correr","Azul","Libro"],0],
+      ["¿Cuál palabra es un adjetivo?",["Grande","Mesa","Leer"],0],
+      ["¿Qué signo suele cerrar una oración enunciativa?",["Punto","Coma","Guion"],0],
+      ["¿Qué elemento transmite el mensaje?",["Emisor","Párrafo","Título"],0],
+      ["¿Qué ayuda a dar sentido y orden a las ideas?",["Coherencia","Mayúsculas","Dibujo"],0],
+      ["¿Qué género incluye cuentos y novelas?",["Narrativo","Lírico","Dramático"],0],
+      ["¿Qué palabra significa lo contrario de otra?",["Antónimo","Sinónimo","Conector"],0],
+      ["¿Quién recibe un mensaje?",["Receptor","Emisor","Canal"],0],
+      ["¿Qué palabra une ideas?",["Conector","Personaje","Escenario"],0],
+      ["¿Cuál es un sinónimo de 'feliz'?",["Contento","Oscuro","Rápido"],0],
+      ["¿Cuál es un antónimo de 'alto'?",["Bajo","Grande","Ancho"],0],
+      ["¿Qué estudia la ortografía?",["La escritura correcta","Los planetas","Las operaciones"],0],
+      ["¿Qué palabra nombra una persona, animal o cosa?",["Sustantivo","Verbo","Adverbio"],0],
+      ["¿Qué palabra describe al sustantivo?",["Adjetivo","Conector","Artículo"],0],
+      ["¿Qué parte de la historia presenta los hechos iniciales?",["Inicio","Desenlace","Moraleja"],0],
+      ["¿Qué parte suele presentar el conflicto?",["Nudo","Título","Portada"],0],
+      ["¿Qué parte cierra una historia?",["Desenlace","Introducción","Índice"],0],
+      ["¿Qué texto busca convencer al lector?",["Argumentativo","Instructivo","Descriptivo"],0],
+      ["¿Qué texto explica pasos?",["Instructivo","Lírico","Narrativo"],0],
+      ["¿Qué texto informa sobre un hecho actual?",["Noticia","Poema","Fábula"],0],
+      ["¿Qué suele dejar una fábula?",["Una enseñanza","Una fórmula","Una dirección"],0],
+      ["¿Qué puede tener una obra de teatro?",["Actos y escenas","Capítulos y enlaces","Tablas y gráficas"],0],
+      ["¿Qué signo se usa para una pregunta?",["¿ ?","¡ !","( )"],0],
+      ["¿Qué signo expresa sorpresa o emoción?",["¡ !","¿ ?","[ ]"],0],
+      ["¿Qué es una inferencia?",["Una conclusión basada en pistas","Una copia","Un título"],0],
+      ["¿Qué es un resumen?",["Una versión breve con ideas principales","Una lista de dibujos","Una copia completa"],0],
+      ["¿Qué es la idea principal?",["La idea más importante","El último punto","El nombre del autor"],0],
+      ["¿Para qué sirve un título?",["Orientar sobre el contenido","Cambiar la ortografía","Separar sílabas"],0],
+      ["¿Qué es un párrafo?",["Un conjunto de oraciones relacionadas","Una sola letra","Un signo"],0],
+      ["¿Qué es la cohesión?",["La conexión entre partes de un texto","La cantidad de páginas","El tamaño de la letra"],0],
+      ["¿Qué hace 'además'?",["Añade información","Expresa oposición","Indica una pregunta"],0],
+      ["¿Qué expresa 'sin embargo'?",["Contraste","Tiempo","Lugar"],0],
+      ["¿Qué puede introducir 'por lo tanto'?",["Una consecuencia","Una pregunta","Un personaje"],0],
+      ["¿Qué es una descripción?",["Explicación de características","Una operación","Una moraleja"],0],
+      ["¿Qué es un diálogo?",["Una conversación","Una definición","Una rima"],0],
+      ["¿Qué es un narrador?",["Quien cuenta los hechos","Quien imprime el libro","Quien compra el libro"],0],
+      ["¿Qué es un personaje?",["Quien participa en la historia","El signo final","El título"],0],
+      ["¿Qué es un escenario?",["El lugar donde ocurre una escena","La moraleja","El argumento"],0],
+      ["¿Qué es una metáfora?",["Una relación figurada entre ideas","Una lista de verbos","Un signo de puntuación"],0],
+      ["¿Qué es una comparación o símil?",["Relacionar elementos usando palabras como 'como'","Eliminar un párrafo","Cambiar una letra"],0],
+      ["¿Qué es la personificación?",["Dar características humanas a algo no humano","Repetir un título","Ordenar palabras"],0],
+      ["¿Qué es una rima?",["Semejanza de sonidos al final de versos","Una pregunta","Un resumen"],0],
+      ["¿Qué es una estrofa?",["Un conjunto de versos","Un personaje","Un signo"],0],
+      ["¿Qué consulta un diccionario?",["Significados y usos de palabras","Calificaciones escolares","Contraseñas"],0],
+      ["¿Qué significa interpretar un texto?",["Comprender y explicar su significado","Copiarlo sin leer","Cambiar todas sus palabras"],0],
+      ["¿Qué aporta el contexto?",["Pistas para comprender un significado","Más páginas","Una contraseña"],0],
+      ["¿Qué es un argumento?",["Una razón que apoya una idea","Un personaje secundario","Una sílaba"],0],
+      ["¿Qué es la comunicación?",["Un proceso para transmitir mensajes","Un tipo de poema","Una regla de acentuación"],0],
+      ["¿Qué es el canal?",["El medio por el que se transmite el mensaje","Quien recibe el mensaje","La idea principal"],0],
+      ["¿Qué es el código?",["El sistema de signos usado para comunicar","El lugar de la historia","El personaje principal"],0],
+      ["¿Cuál es una forma de comunicación no verbal?",["Un gesto","Un párrafo","Un sustantivo"],0],
+      ["¿Qué es el vocabulario?",["Conjunto de palabras que conocemos o usamos","Conjunto de escenas","Una lista de títulos"],0],
+      ["¿Qué es la gramática?",["Reglas que organizan una lengua","Una colección de cuentos","Un tipo de rima"],0],
+      ["¿Qué es un texto narrativo?",["Uno que cuenta acontecimientos","Uno que solo da instrucciones","Uno que solo enumera objetos"],0],
+      ["¿Qué es un texto descriptivo?",["Uno que presenta características","Uno que da resultados matemáticos","Uno que solo pregunta"],0],
+      ["¿Qué es un texto instructivo?",["Uno que indica cómo hacer algo","Uno que cuenta una leyenda","Uno que describe un paisaje"],0],
+      ["¿Qué es un texto argumentativo?",["Uno que defiende una postura con razones","Uno que solo tiene dibujos","Uno que enumera personajes"],0],
+      ["¿Qué es la lectura comprensiva?",["Leer buscando entender el significado","Leer sin prestar atención","Memorizar cada palabra"],0],
+      ["¿Qué ayuda a revisar un texto?",["Volver a leerlo y corregirlo","Eliminar los párrafos","Quitar los conectores"],0],
+      ["¿Qué debe tener un texto bien organizado?",["Ideas relacionadas y ordenadas","Solo palabras difíciles","Muchas páginas"],0]
+    ]
+  };
+
   const conceptos = [
     ["Sustantivo","Nombre"],["Verbo","Acción"],["Adjetivo","Característica"],
     ["Metáfora","Figura literaria"],["Narrador","Cuenta la historia"],
     ["Ortografía","Escritura correcta"],["Conector","Une ideas"],["Párrafo","Grupo de oraciones"]
   ];
 
+  // Pistas completas para Ahorcado (la segunda columna sigue siendo la categoría).
+  const PISTAS_AHORCADO = {
+    ORTOGRAFIA:"Conjunto de reglas que usamos para escribir correctamente.",
+    METAFORA:"Recurso literario que relaciona una cosa con otra de forma figurada.",
+    SUSTANTIVO:"Palabra que nombra personas, animales, lugares, objetos o ideas.",
+    NARRADOR:"Voz que cuenta los hechos de una historia.",
+    COHERENCIA:"Hace que las ideas de un texto tengan sentido y estén relacionadas.",
+    ARGUMENTO:"Conjunto de razones que se usan para defender una idea.",
+    ADJETIVO:"Palabra que describe o califica a un sustantivo.",
+    VERBO:"Palabra que expresa una acción, estado o proceso.",
+    POESIA:"Forma literaria que usa ritmo y lenguaje expresivo.",
+    COMUNICACION:"Proceso mediante el cual se transmite un mensaje.",
+    INFERENCIA:"Conclusión que obtenemos a partir de pistas de un texto.",
+    PARRAFO:"Conjunto de oraciones que desarrollan una idea.",
+    TILDE:"Signo gráfico que puede marcar la sílaba tónica de una palabra.",
+    SINONIMO:"Palabra que tiene un significado igual o parecido a otra.",
+    ANTONIMO:"Palabra que expresa un significado contrario a otra.",
+    DIALOGO:"Conversación entre dos o más personas o personajes.",
+    FABULA:"Relato breve que suele dejar una enseñanza.",
+    CUENTO:"Narración breve de hechos reales o imaginarios.",
+    ORACION:"Conjunto de palabras que expresa una idea con sentido completo.",
+    CONECTOR:"Palabra o expresión que une y relaciona ideas.",
+    VOCABULARIO:"Conjunto de palabras que conoce y utiliza una persona o lengua.",
+    PUNTUACION:"Conjunto de signos que ayudan a organizar un texto.",
+    PERSONAJE:"Ser que participa en los hechos de una historia.",
+    DESCRIPCION:"Explicación detallada de cómo es alguien, algo o un lugar.",
+    GRAMATICA:"Conjunto de reglas que organizan el funcionamiento de una lengua.",
+    LECTURA:"Proceso de comprender lo que está escrito.",
+    ESCRITURA:"Forma de expresar ideas mediante palabras escritas.",
+    LITERATURA:"Arte que utiliza el lenguaje para crear obras.",
+    PALABRA:"Unidad de la lengua con significado.",
+    TEXTO:"Conjunto organizado de palabras que comunica un mensaje."
+  };
+
   let estado = {
     juego: null, nivel: 1, xp: 0, racha: 0,
     ronda: 0, intentos: 0, objetivo: null,
-    memoria: null, quiz: null, orden: []
+    memoria: null, quiz: null, orden: [], relampago: null
   };
 
   function panel(titulo, contenido){
@@ -1990,10 +2252,10 @@ main,
   }
 
   function recompensa(xp, monedas){
-    estado.xp += xp;
+    estado.xp = Math.min(3000, estado.xp + xp);
     const u=window.usuarioActivo;
     if(u){
-      u.xpTotal=Math.min(4000, Number(u.xpTotal||0)+xp);
+      u.xpTotal=Math.min(3000, Number(u.xpTotal||0)+xp);
       u.monedas=Number(u.monedas||0)+monedas;
       u.minijuegosGanados=Number(u.minijuegosGanados||0)+1;
       try{
@@ -2033,6 +2295,10 @@ main,
     if(tipo==="error") iniciarError();
     if(tipo==="ordenar") iniciarOrdenar();
     if(tipo==="quiz") iniciarQuiz();
+    if(tipo==="verdadero") iniciarVerdadero();
+    if(tipo==="intruso") iniciarIntruso();
+    if(tipo==="completa") iniciarCompleta();
+    if(tipo==="relampago") iniciarRelampago();
   };
 
   function iniciarAhorcado(){
@@ -2041,6 +2307,7 @@ main,
     estado.intentos=6;
     estado.letras=[];
     const pista=item[1];
+    estado.pistaAhorcado=PISTAS_AHORCADO[item[0]] || "Piensa en una palabra relacionada con esta categoría.";
     renderAhorcado(pista);
   }
 
@@ -2050,6 +2317,10 @@ main,
     const letras="ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     panel("🪢 Ahorcado",
       '<p class="text-slate-400">Categoría: '+pista+'</p>'+
+      '<div class="my-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-left">'+
+      '<p class="text-amber-300 font-black text-sm mb-1">💡 Pista</p>'+
+      '<p class="text-slate-200 text-sm">'+(estado.pistaAhorcado || 'Piensa en una palabra relacionada con esta categoría.')+'</p>'+
+      '</div>'+
       '<div class="text-4xl text-center font-black tracking-widest text-amber-400 my-6">'+visible+'</div>'+
       '<div class="text-center text-white mb-4">❤️ Intentos: '+estado.intentos+'</div>'+
       '<div class="grid grid-cols-7 gap-2">'+letras.map(l=>{
@@ -2150,6 +2421,83 @@ main,
       actualizarMarcadores();
       alert("❌ La oración todavía no está bien.\\n\\nPuedes reorganizarla y volver a intentarlo.");
       iniciarOrdenar();
+    }
+  };
+
+  function iniciarVerdadero(){
+    const item=bancoNuevosJuegos.verdadero[Math.floor(Math.random()*bancoNuevosJuegos.verdadero.length)];
+    estado.objetivo=item;
+    panel("⚔️ Verdadero o Falso",
+      '<p class="text-slate-400 mb-2">Lee con atención y decide antes de responder.</p>'+
+      '<div class="my-6 p-5 rounded-2xl bg-slate-900 border border-slate-700 text-white text-lg font-bold text-center">'+item[0]+'</div>'+ 
+      '<div class="grid grid-cols-2 gap-3">'+
+      '<button onclick="responderVerdadero(true)" class="p-4 rounded-xl bg-emerald-600/20 border border-emerald-500/40 text-emerald-300 font-black hover:scale-[1.02] transition">✅ VERDADERO</button>'+ 
+      '<button onclick="responderVerdadero(false)" class="p-4 rounded-xl bg-rose-600/20 border border-rose-500/40 text-rose-300 font-black hover:scale-[1.02] transition">❌ FALSO</button>'+
+      '</div>');
+  }
+
+  window.responderVerdadero=function(valor){
+    if(valor===estado.objetivo[1]) ganar("¡Excelente! Tu respuesta fue correcta.");
+    else fallarIntento("No era esa. Lee la afirmación otra vez y vuelve a intentarlo.");
+  };
+
+  function iniciarIntruso(){
+    const item=bancoNuevosJuegos.intruso[Math.floor(Math.random()*bancoNuevosJuegos.intruso.length)];
+    estado.objetivo=item;
+    panel("🕵️ Palabra Intrusa",
+      '<p class="text-slate-400 mb-4">Tres palabras pertenecen al mismo grupo. Encuentra la que sobra.</p>'+
+      '<div class="grid grid-cols-2 gap-3">'+item.slice(0,4).map((w,i)=>
+        '<button onclick="responderIntruso('+i+')" class="p-4 rounded-xl bg-slate-900 border border-slate-700 text-white font-black text-lg hover:-translate-y-1 transition">'+w+'</button>'
+      ).join('')+'</div>');
+  }
+
+  window.responderIntruso=function(i){
+    if(i===estado.objetivo[4]) ganar("¡Detective! Encontraste la palabra intrusa.");
+    else fallarIntento("Esa palabra sí pertenece al grupo. ¡Busca otra!");
+  };
+
+  function iniciarCompleta(){
+    const item=bancoNuevosJuegos.completa[Math.floor(Math.random()*bancoNuevosJuegos.completa.length)];
+    estado.objetivo=item;
+    panel("🧩 Completa la Frase",
+      '<p class="text-slate-400 mb-4">Elige la palabra que hace que la frase tenga sentido.</p>'+
+      '<div class="my-5 p-5 rounded-2xl bg-slate-900 border border-slate-700 text-white text-lg font-bold text-center">'+item[0]+'</div>'+ 
+      '<div class="grid gap-2">'+item[1].map((o,i)=>
+        '<button onclick="responderCompleta('+i+')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-left hover:border-violet-400 transition">'+o+'</button>'
+      ).join('')+'</div>');
+  }
+
+  window.responderCompleta=function(i){
+    if(i===estado.objetivo[2]) ganar("¡Frase completada correctamente!");
+    else fallarIntento("Esa palabra no encaja. Prueba otra opción.");
+  };
+
+  function iniciarRelampago(){
+    const preguntas=barajar(bancoNuevosJuegos.relampago).slice(0,5);
+    estado.relampago={preguntas:preguntas,i:0,correctas:0};
+    mostrarRelampago();
+  }
+
+  function mostrarRelampago(){
+    const r=estado.relampago;
+    const q=r.preguntas[r.i];
+    panel("⚡ Reto Relámpago",
+      '<div class="flex justify-between text-xs text-slate-400 mb-4"><span>Reto '+(r.i+1)+' de '+r.preguntas.length+'</span><span>🔥 '+r.correctas+' correctas</span></div>'+ 
+      '<div class="mb-5 p-5 rounded-2xl bg-slate-900 border border-slate-700 text-white text-lg font-black text-center">'+q[0]+'</div>'+ 
+      '<div class="grid gap-2">'+q[1].map((o,i)=>
+        '<button onclick="responderRelampago('+i+')" class="p-3 rounded-xl bg-slate-900 border border-slate-700 text-white font-bold hover:scale-[1.01] transition">'+o+'</button>'
+      ).join('')+'</div>');
+  }
+
+  window.responderRelampago=function(i){
+    const r=estado.relampago, q=r.preguntas[r.i];
+    if(i===q[2]){
+      r.correctas++; r.i++;
+      if(r.i>=r.preguntas.length) ganar("¡Reto relámpago terminado! Lograste "+r.correctas+" de "+r.preguntas.length+".");
+      else mostrarRelampago();
+    }else{
+      fallarIntento("Respuesta incorrecta. La pregunta sigue aquí.");
+      mostrarRelampago();
     }
   };
 
@@ -2978,27 +3326,27 @@ function actualizarRachaDiaria(estudiante) {
         const input=document.getElementById('perfil-foto-input');if(input)input.value='';saveToStorage();aplicarAvatarVisual();
     }
 
-    // SISTEMA DE NIVELES PRINCIPAL (0 a 4000 XP)
+    // SISTEMA DE NIVELES PRINCIPAL (0 a 3000 XP)
     function obtenerNivelPrincipal(xp) {
         xp = Math.max(0, Number(xp) || 0);
         const niveles = [
             {nivel:1, inicio:0, fin:300, nombre:"Aprendiz Guardián"},
             {nivel:2, inicio:300, fin:600, nombre:"Recluta de Bosa"},
-            {nivel:3, inicio:600, fin:1000, nombre:"Guardián de Bronce"},
-            {nivel:4, inicio:1000, fin:1400, nombre:"Guardián de Plata"},
-            {nivel:5, inicio:1400, fin:1800, nombre:"Guardián de Oro"},
-            {nivel:6, inicio:1800, fin:2200, nombre:"Custodio de la Palabra"},
-            {nivel:7, inicio:2200, fin:2600, nombre:"Maestro de las Letras"},
-            {nivel:8, inicio:2600, fin:3000, nombre:"Defensor de la Lengua"},
-            {nivel:9, inicio:3000, fin:3500, nombre:"Gran Custodio"},
-            {nivel:10, inicio:3500, fin:4000, nombre:"Gran Guardián de la Palabra"}
+            {nivel:3, inicio:600, fin:900, nombre:"Guardián de Bronce"},
+            {nivel:4, inicio:900, fin:1200, nombre:"Guardián de Plata"},
+            {nivel:5, inicio:1200, fin:1500, nombre:"Guardián de Oro"},
+            {nivel:6, inicio:1500, fin:1800, nombre:"Custodio de la Palabra"},
+            {nivel:7, inicio:1800, fin:2100, nombre:"Maestro de las Letras"},
+            {nivel:8, inicio:2100, fin:2400, nombre:"Defensor de la Lengua"},
+            {nivel:9, inicio:2400, fin:2700, nombre:"Gran Custodio"},
+            {nivel:10, inicio:2700, fin:3000, nombre:"Gran Guardián de la Palabra"}
         ];
         return niveles.find(n => xp < n.fin) || niveles[niveles.length-1];
     }
 
     function actualizarNivelPrincipal() {
         if(!usuarioActivo) return;
-        const xp = Math.min(4000, Math.max(0, Number(usuarioActivo.xpTotal) || 0));
+        const xp = Math.min(3000, Math.max(0, Number(usuarioActivo.xpTotal) || 0));
         const datos = obtenerNivelPrincipal(xp);
         const ids = ['nivel-principal','nivel-rango','nivel-xp','nivel-actual-texto','nivel-siguiente','nivel-barra'];
         if(!document.getElementById(ids[0])) return;
@@ -3403,7 +3751,7 @@ function paginaAnterior() {
                 }
 
                 usuarioActivo.xpDiaria += xpSumar;
-                usuarioActivo.xpTotal += xpSumar;
+                usuarioActivo.xpTotal = Math.min(3000, usuarioActivo.xpTotal + xpSumar);
                 usuarioActivo.monedas += misionSeleccionada.monedasReward;
 
             } else {
@@ -3792,7 +4140,7 @@ window.addEventListener("load", () => {
         if(!usuarioActivo) return;
         const total=Number(usuarioActivo.xpTotal)||0;
         const diario=Number(usuarioActivo.xpDiaria)||0;
-        const ganado=Math.min(xp,Math.max(0,4000-total),Math.max(0,1200-diario));
+        const ganado=Math.min(xp,Math.max(0,3000-total),Math.max(0,1200-diario));
         usuarioActivo.xpTotal=total+ganado;
         usuarioActivo.xpDiaria=diario+ganado;
         usuarioActivo.monedas=(Number(usuarioActivo.monedas)||0)+monedas;
