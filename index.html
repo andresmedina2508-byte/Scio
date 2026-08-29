@@ -3671,24 +3671,25 @@ function paginaAnterior() {
 
         const voz = new SpeechSynthesisUtterance(mensaje);
 
-        // Perfil refinado de asistente IA futurista:
-        // calmado, grave, elegante y preciso.
+        // Nueva voz: asistente femenina en español.
+        // Se selecciona una voz femenina disponible en el dispositivo,
+        // sin cambiar ninguna otra función de Guardianes.
         voz.lang = 'es-ES';
-        voz.rate = 0.96;
-        voz.pitch = 0.76;
+        voz.rate = 0.98;
+        voz.pitch = 1.08;
         voz.volume = 1;
 
         const voces = speechSynthesis.getVoices();
 
-        // Buscar primero una voz masculina en español.
+        // Preferir voces femeninas en español.
         const vozPreferida =
             voces.find(v =>
                 /^es/i.test(v.lang) &&
-                /jorge|diego|carlos|pablo|antonio|male|hombre|mascul/i.test(v.name)
+                /female|mujer|helena|monica|lucia|elena|sabina|paulina|laura|sofia|female/i.test(v.name)
             ) ||
             voces.find(v =>
                 /^es/i.test(v.lang) &&
-                !/female|mujer|helena|monica|lucia/i.test(v.name)
+                !/male|hombre|jorge|diego|carlos|pablo|antonio|mascul/i.test(v.name)
             ) ||
             voces.find(v => /^es/i.test(v.lang)) ||
             voces[0];
@@ -3697,13 +3698,14 @@ function paginaAnterior() {
             voz.voice = vozPreferida;
         }
 
-        // Entrada sonora de asistente de IA.
+        // Mantener los sonidos tecnológicos originales.
         sonidoProcesandoAsistente();
 
         setTimeout(() => {
             speechSynthesis.speak(voz);
         }, 150);
     }
+
 
     // =========================================================
     // BIENVENIDA PERSONALIZADA
