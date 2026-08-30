@@ -905,7 +905,10 @@ header .text-xs{
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#030712">
-
+    
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+    
 <style>
 /* BOTÓN CERRAR DE LA SALA DE MINIJUEGOS */
 #minijuegos-extra{
@@ -4032,7 +4035,11 @@ function paginaAnterior() {
 
 <script>
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('service-worker.js');
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(() => console.log('Guardianes: Service Worker activo'))
+      .catch(error => console.error('Error del Service Worker:', error));
+  });
 }
 window.addEventListener("load", () => {
 
