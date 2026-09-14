@@ -1583,6 +1583,19 @@ main,
     #btn-instalar-app span{display:none}
 }
 </style>
+
+<style id="guardianes-profesor-gestion">
+    #teacher-manage-list button{transition:.18s ease}
+    #teacher-manage-list button:hover{transform:scale(1.04)}
+    @media(max-width:700px){
+        #view-teacher .grid.grid-cols-1.lg\:grid-cols-3 > div{
+            width:100%;
+            min-width:0;
+        }
+        #view-teacher input,#view-teacher select{font-size:16px!important;}
+    }
+</style>
+
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between">
     <!-- FONDO AURORA ANIMADO -->
@@ -2689,6 +2702,64 @@ main,
                     </div>
                     <div class="divide-y divide-slate-800/60 max-h-96 overflow-y-auto custom-scrollbar" id="teacher-table-body">
                         </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1 bg-slate-900 border border-purple-500/20 rounded-2xl p-5 shadow-xl space-y-4">
+                <div class="flex items-center justify-between gap-2">
+                    <h3 class="font-bold text-sm text-slate-300 uppercase tracking-wider">
+                        <i class="fa-solid fa-user-gear text-purple-400 mr-2"></i>Gestionar estudiantes
+                    </h3>
+                    <span class="text-[9px] text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-full">
+                        GUARDADO AUTOMÁTICO
+                    </span>
+                </div>
+
+                <p class="text-xs text-slate-400">
+                    El profesor puede agregar nuevos estudiantes o retirarlos del curso seleccionado.
+                    Los cambios se guardan automáticamente en la base local de la aplicación.
+                </p>
+
+                <div class="space-y-2">
+                    <input id="teacher-new-doc" type="text" inputmode="numeric"
+                        placeholder="Documento de identidad"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+
+                    <input id="teacher-new-name" type="text"
+                        placeholder="Nombre completo"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <input id="teacher-new-cumple" type="text"
+                            placeholder="Cumple (MM-DD)"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+
+                        <select id="teacher-new-pregunta"
+                            class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+                            <option value="¿Ciudad natal?">Ciudad natal</option>
+                            <option value="¿Nombre mascota?">Nombre mascota</option>
+                            <option value="¿Colegio anterior?">Colegio anterior</option>
+                            <option value="¿Color favorito?">Color favorito</option>
+                            <option value="¿Deporte preferido?">Deporte preferido</option>
+                        </select>
+                    </div>
+
+                    <input id="teacher-new-respuesta" type="text"
+                        placeholder="Respuesta de seguridad"
+                        class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-purple-500">
+
+                    <button onclick="agregarEstudianteDesdeProfesor()"
+                        class="w-full bg-gradient-to-r from-purple-600 to-fuchsia-500 hover:from-purple-500 hover:to-fuchsia-400 text-white font-black text-xs py-2.5 rounded-xl transition-all">
+                        <i class="fa-solid fa-user-plus mr-1"></i> AGREGAR ESTUDIANTE
+                    </button>
+                </div>
+
+                <div class="border-t border-slate-800 pt-3">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Estudiantes del curso</span>
+                        <span id="teacher-student-count" class="text-[10px] text-purple-300 font-bold">0</span>
+                    </div>
+                    <div id="teacher-manage-list" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar"></div>
                 </div>
             </div>
 
@@ -3921,6 +3992,7 @@ function paginaAnterior() {
 
     function renderTeacherPanel() {
         const tableBody = document.getElementById('teacher-table-body');
+        if(!tableBody) return;
         tableBody.innerHTML = "";
 
         const filtrados = dbEstudiantes.filter(e => e.curso === docenteCursoFiltro);
@@ -3928,8 +4000,8 @@ function paginaAnterior() {
 
         filtrados.forEach(e => {
             const notaObj = calcularNotaEquivalente(e.xpTotal);
-            
-            // Agrupamiento de fallas para reporte diagnóstico
+            e.fallas = Array.isArray(e.fallas) ? e.fallas : [];
+
             e.fallas.forEach(f => {
                 fallasAgrupadas[f] = (fallasAgrupadas[f] || 0) + 1;
             });
@@ -3938,15 +4010,15 @@ function paginaAnterior() {
                 <div class="grid grid-cols-4 p-3 items-center text-center text-xs">
                     <div class="text-left">
                         <div class="font-bold text-slate-200">${e.nombre}</div>
-                        <div class="text-[10px] text-slate-500 font-mono">Doc: ${e.doc} | Cumple: ${e.cumple}</div>
+                        <div class="text-[10px] text-slate-500 font-mono">Doc: ${e.doc} | Cumple: ${e.cumple || '--'}</div>
                     </div>
                     <div>
-                        <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-300 font-mono font-bold">${e.xpTotal} Tot XP</span>
-                        <div class="text-[9px] text-slate-400 mt-0.5">Hoy: ${e.xpDiaria}/1200 XP</div>
+                        <span class="bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-purple-300 font-mono font-bold">${e.xpTotal || 0} Tot XP</span>
+                        <div class="text-[9px] text-slate-400 mt-0.5">Hoy: ${e.xpDiaria || 0}/1200 XP</div>
                     </div>
                     <div>
-                        <div class="text-red-400 font-bold text-[11px]"><i class="fa-solid fa-fire mr-0.5"></i> ${e.racha} Días</div>
-                        <div class="text-[9px] text-slate-500 font-mono">${calcularRango(e.xpTotal)}</div>
+                        <div class="text-red-400 font-bold text-[11px]"><i class="fa-solid fa-fire mr-0.5"></i> ${e.racha || 0} Días</div>
+                        <div class="text-[9px] text-slate-500 font-mono">${calcularRango(e.xpTotal || 0)}</div>
                     </div>
                     <div class="${notaObj.c} font-bold font-mono">
                         <span>${notaObj.r}</span>
@@ -3956,8 +4028,11 @@ function paginaAnterior() {
             `;
         });
 
-        // Inyectar Recomendaciones Diagnósticas según errores
+        // Lista de gestión: agregar / retirar estudiantes del curso actual.
+        renderTeacherManageList();
+
         const diagZone = document.getElementById('teacher-diagnostic-zone');
+        if(!diagZone) return;
         diagZone.innerHTML = "";
 
         const llavesFallas = Object.keys(fallasAgrupadas);
@@ -3976,6 +4051,124 @@ function paginaAnterior() {
                 `;
             });
         }
+    }
+
+    function renderTeacherManageList() {
+        const lista = document.getElementById('teacher-manage-list');
+        const contador = document.getElementById('teacher-student-count');
+        if(!lista) return;
+
+        const estudiantes = dbEstudiantes.filter(e => e.curso === docenteCursoFiltro);
+        if(contador) contador.textContent = `${estudiantes.length} alumno${estudiantes.length === 1 ? '' : 's'}`;
+
+        if(estudiantes.length === 0) {
+            lista.innerHTML = `<div class="text-[11px] text-slate-500 text-center py-3 border border-dashed border-slate-800 rounded-xl">No hay estudiantes en este curso.</div>`;
+            return;
+        }
+
+        lista.innerHTML = estudiantes.map(e => `
+            <div class="flex items-center justify-between gap-2 bg-slate-950 border border-slate-800 rounded-xl p-2.5">
+                <div class="min-w-0">
+                    <div class="text-xs font-bold text-slate-200 truncate">${e.nombre}</div>
+                    <div class="text-[9px] text-slate-500 font-mono">Doc: ${e.doc}</div>
+                </div>
+                <button onclick="eliminarEstudianteDesdeProfesor('${String(e.doc).replace(/'/g, "\\'")}')"
+                    class="shrink-0 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-1.5 rounded-lg text-[10px] font-black"
+                    title="Retirar estudiante">
+                    <i class="fa-solid fa-user-minus"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    function limpiarFormularioNuevoEstudiante() {
+        ['teacher-new-doc','teacher-new-name','teacher-new-cumple','teacher-new-respuesta'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.value = '';
+        });
+    }
+
+    function agregarEstudianteDesdeProfesor() {
+        // Solo se permite ejecutar desde una sesión docente.
+        if(!usuarioActivo || usuarioActivo.rol !== 'docente') {
+            alert("Debes ingresar como docente para gestionar estudiantes.");
+            return;
+        }
+
+        const doc = document.getElementById('teacher-new-doc')?.value.trim();
+        const nombre = document.getElementById('teacher-new-name')?.value.trim();
+        const cumple = document.getElementById('teacher-new-cumple')?.value.trim();
+        const pregunta = document.getElementById('teacher-new-pregunta')?.value || "¿Ciudad natal?";
+        const respuesta = document.getElementById('teacher-new-respuesta')?.value.trim();
+
+        if(!doc || !nombre || !respuesta) {
+            alert("Completa documento, nombre y respuesta de seguridad.");
+            return;
+        }
+
+        if(dbEstudiantes.some(e => String(e.doc).trim() === doc)) {
+            alert("Ese documento ya está registrado. No se puede duplicar.");
+            return;
+        }
+
+        const nuevoEstudiante = {
+            doc,
+            nombre,
+            curso: docenteCursoFiltro,
+            cumple: cumple || "--",
+            pregSeguridad: pregunta,
+            respSeguridad: respuesta,
+            xpTotal: 0,
+            xpDiaria: 0,
+            monedas: 0,
+            racha: 0,
+            fallas: [],
+            preguntasRespondidas: 0,
+            preguntasCorrectas: 0,
+            preguntasIncorrectas: 0,
+            minijuegosGanados: 0,
+            avatar: "feather",
+            fotoPerfil: "",
+            ultimaConexion: ""
+        };
+
+        dbEstudiantes.push(nuevoEstudiante);
+        saveToStorage();
+        renderTeacherPanel();
+        limpiarFormularioNuevoEstudiante();
+
+        alert(`Estudiante ${nombre} agregado correctamente al curso ${docenteCursoFiltro}.`);
+    }
+
+    function eliminarEstudianteDesdeProfesor(doc) {
+        if(!usuarioActivo || usuarioActivo.rol !== 'docente') {
+            alert("Debes ingresar como docente para gestionar estudiantes.");
+            return;
+        }
+
+        const estudiante = dbEstudiantes.find(e => String(e.doc) === String(doc));
+        if(!estudiante) {
+            alert("No se encontró ese estudiante.");
+            return;
+        }
+
+        const confirmar = confirm(
+            `¿Retirar a ${estudiante.nombre} del listado del curso ${estudiante.curso}?\\n\\n` +
+            `Su registro y progreso se eliminarán de la base local de esta aplicación.`
+        );
+
+        if(!confirmar) return;
+
+        // Si el estudiante eliminado estaba activo, cerramos su sesión.
+        if(usuarioActivo === estudiante) {
+            usuarioActivo = null;
+        }
+
+        dbEstudiantes = dbEstudiantes.filter(e => String(e.doc) !== String(doc));
+        saveToStorage();
+        renderTeacherPanel();
+
+        alert("Estudiante retirado correctamente. El cambio se guardó automáticamente.");
     }
 
     // REINICIO DE RANGOS CADA PERÍODO ACADÉMICO
