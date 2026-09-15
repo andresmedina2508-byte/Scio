@@ -1596,6 +1596,29 @@ main,
     }
 </style>
 
+
+<style id="estilo-ojito-profesional">
+.password-toggle {
+    border: 0;
+    background: transparent;
+    color: #555;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 8px;
+    border-radius: 6px;
+    transition: background-color .2s ease, color .2s ease;
+}
+.password-toggle:hover {
+    background-color: #f1f1f1;
+    color: #222;
+}
+.password-toggle:focus-visible {
+    outline: 2px solid #777;
+    outline-offset: 2px;
+}
+</style>
+
 </head>
 <body class="text-slate-100 min-h-screen flex flex-col justify-between">
     <!-- FONDO AURORA ANIMADO -->
@@ -1681,7 +1704,12 @@ main,
         <div id="form-docente" class="space-y-4 hidden">
             <div>
                 <label class="block text-[11px] font-bold text-slate-400 uppercase mb-1">Contraseña Institucional Docente:</label>
-                <input type="password" id="login-docente-pass" placeholder="Contraseña de Control" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-purple-500 transition-colors">
+                <div class="relative">
+                <input type="password" id="login-docente-pass" placeholder="Contraseña de Control" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 pr-12 text-sm focus:outline-none focus:border-purple-500 transition-colors">
+                <button type="button" onclick="togglePasswordDocente()" aria-label="Mostrar u ocultar contraseña" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors">
+                    <span id="ojo-password-docente">Mostrar</span>
+                </button>
+            </div>
             </div>
             <button onclick="loginDocente()" class="w-full bg-purple-600 hover:bg-purple-500 text-white font-black text-xs py-3 rounded-xl transition-all tracking-wider">ACCEDER A LA CONSOLA</button>
         </div>
@@ -4444,5 +4472,51 @@ window.addEventListener("load", () => {
 </body>
 </html>
 
+
+<script>
+/* OJO PARA MOSTRAR/OCULTAR LA CONTRASEÑA DEL DOCENTE */
+function togglePasswordDocente() {
+    const input = document.getElementById('login-docente-pass');
+    const ojo = document.getElementById('ojo-password-docente');
+
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        if (ojo) ojo.textContent = 'Ocultar';
+    } else {
+        input.type = 'password';
+        if (ojo) ojo.textContent = 'Mostrar';
+    }
+}
+
+/* ENTER EN LOS INICIOS DE ESTUDIANTE Y DOCENTE
+   No modifica las funciones existentes: solo permite usar Enter
+   en lugar de pulsar el boton correspondiente. */
+document.addEventListener('DOMContentLoaded', function () {
+    const inputEstudiante = document.getElementById('login-doc');
+    const inputDocente = document.getElementById('login-docente-pass');
+
+    if (inputEstudiante) {
+        inputEstudiante.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loginEstudiante();
+            }
+        });
+    }
+
+    if (inputDocente) {
+        inputDocente.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                loginDocente();
+            }
+        });
+    }
+});
+</script>
+</body>
+</html>
 </body>
 </html>
