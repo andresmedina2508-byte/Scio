@@ -4,8 +4,8 @@ const ARCHIVOS = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icons/icono-192.png",
+  "./icons/icono-512.png"
 ];
 
 self.addEventListener("install", (event) => {
